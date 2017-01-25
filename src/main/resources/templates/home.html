@@ -1,5 +1,5 @@
 <!doctype html>
-
+<link rel="stylesheet" type="text/css" href="formatting.css">
 <html>
 <body>
 {{^user}}
@@ -10,20 +10,23 @@
 {{/user}}
 
 {{#user}}
-Welcome, {{name}}!<br />
+<h1>Welcome, {{name}}!<br /> </h1>
 <form action="/logout" method="post">
     <button type="submit">Logout</button>
 </form>
 
 <form action="/create-event" method="post">
     <input type="text" placeholder="Description" name="description" size="50" />
-    <input type="datetime-local" name="dateTime" value="{{now}}" />
+    <input type="datetime-local" name="startTime" value="{{now}}" />
+    <input type="datetime-local" name="endTime" value ="{{now}}"/>
     <button type="submit">Add Event</button>
 </form>
 {{/user}}
 
+<table>  <th>Descripton</th>  <th>startTime</th> <th>endTime</th></table>
 {{#events}}
-{{description}} {{dateTime}}<br />
+
+{{description}} {{startTime}} {{endTime}} <br />
 {{/events}}
 </body>
 </html>

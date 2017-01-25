@@ -1,0 +1,12 @@
+body{
+background-color:  #B1d4cd;
+}
+
+
+.content div{
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
