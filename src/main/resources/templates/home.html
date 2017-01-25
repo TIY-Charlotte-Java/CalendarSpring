@@ -23,10 +23,23 @@
 </form>
 {{/user}}
 
-<table>  <th>Descripton</th>  <th>startTime</th> <th>endTime</th></table>
-{{#events}}
 
-{{description}} {{startTime}} {{endTime}} <br />
+<table class = center cellpadding ="5" cellspacing ="5">
+    <tr>
+        <th>Description</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+
+
+    </tr>
+{{#events}}
+<tr>
+    <td>{{description}}</td>
+    <td>{{startTime}}</td>
+    <td>{{endTime}}</td>
+    <br />
+</tr>
 {{/events}}
+</table>
 </body>
 </html>
