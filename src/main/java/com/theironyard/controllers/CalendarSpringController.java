@@ -25,13 +25,13 @@ public class CalendarSpringController {
     @Autowired
     UserRepository users;
 
-    List<Event> eventEntities = new ArrayList<>();
+    //List<Event> eventEntities = new ArrayList<>();
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
-        //List<Event> eventEntities = new ArrayList<>();
-
+        List<Event> eventEntities = new ArrayList<>();
+        //if user name is not null then go and find a user by the below quiry
         if (userName != null) {
             User user = users.findFirstByName(userName);
 
@@ -41,7 +41,6 @@ public class CalendarSpringController {
             model.addAttribute("user", user);
             model.addAttribute("now", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         }
-
         model.addAttribute("events", eventEntities);
         return "home";
     }
@@ -61,19 +60,14 @@ public class CalendarSpringController {
                 List<Event> sameEvent = events.findAllByUserOrderByStartTimeDesc(users.findFirstByName(userName))
                         .stream().filter(e -> check(newEvent, e) == false)
                         .collect(Collectors.toList());
-
                 if (sameEvent.size() == 0) {
                     events.save(newEvent);
-
                 } else {
                     throw new Exception("you can't be at two places" + sameEvent.toString());
-
                 }
-
             } else {
                 throw new Exception("not valid end time ");
             }
-
         }
         return "redirect:/";
     }

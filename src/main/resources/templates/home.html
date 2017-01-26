@@ -3,8 +3,9 @@
 <html>
 <body>
 {{^user}}
+<h1>Your Calendar</h1>
 <form action="/login" method="post">
-    <input type="text" placeholder="Enter your name" name="name"/>
+    <input type="text" placeholder="Enter your name" name="name" required/>
     <button type="submit">Login</button>
 </form>
 {{/user}}
@@ -24,21 +25,23 @@
 {{/user}}
 
 
+
+
+
 <table class = center cellpadding ="5" cellspacing ="5">
     <tr>
         <th>Description</th>
         <th>Start Time</th>
         <th>End Time</th>
-
-
     </tr>
-{{#events}}
-<tr>
-    <td>{{description}}</td>
-    <td>{{startTime}}</td>
-    <td>{{endTime}}</td>
-    <br />
-</tr>
+    {{#events}}
+    <tr>
+        <td>{{description}}</td>
+        <td>{{startTime}}</td>
+        <td>{{endTime}}</td>
+        <br />
+    </tr>
+
 {{/events}}
 </table>
 </body>

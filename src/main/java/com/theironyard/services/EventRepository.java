@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface EventRepository extends CrudRepository<Event, Integer> {
     List<Event> findAllByUserOrderByStartTimeDesc(User user);
-    List<Event> findAllByUser(User user);
+   // List<Event> findAllByUserOrderByEndTimeDesc(User user);
 }
