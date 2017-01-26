@@ -72,11 +72,9 @@ public class CalendarSpringController {
                         users.save(otherUser);
                     }
                 } else {
-                    if (!event.collidesWithEvents(currentUser)){
-                        events.save(event);
-                        currentUser.getEvents().add(event);
-                        users.save(currentUser);
-                    }
+                    events.save(event);
+                    currentUser.getEvents().add(event);
+                    users.save(currentUser);
                 }
             }
         }
