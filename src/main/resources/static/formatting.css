@@ -1,0 +1,18 @@
+body{
+background-color:  #B1d4cd;
+text-align: center;
+}
+
+
+.content {
+  margin-left:auto;
+  margin-right:auto;
+
+}
+
+body {
+text-align: center;
+  font-family: 'Tangerine', serif;
+  font-size: 15px;
+  text-shadow: 4px 4px 4px #aaa;
+}
