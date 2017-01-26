@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class CalendarSpringController {
@@ -33,7 +35,7 @@ public class CalendarSpringController {
             User user = users.findFirstByName(userName);
 
             if (user != null) {
-                eventEntities = events.findAllByUserOrderByDateTimeDesc(user);
+                eventEntities = events.findByUsersIn(Stream.of(user).collect(Collectors.toList()));
             }
 
             model.addAttribute("user", user);
@@ -45,12 +47,40 @@ public class CalendarSpringController {
     }
 
     @RequestMapping(path = "/create-event", method = RequestMethod.POST)
-    public String createEvent(HttpSession session, String description, String dateTime) {
+    public String createEvent(HttpSession session, String description, String startTime, String endTime, String attendee) {
         String userName = (String) session.getAttribute("userName");
-        if (userName != null) {
-            Event event = new Event(description, LocalDateTime.parse(dateTime), users.findFirstByName(userName));
-            events.save(event);
+
+        // get current user
+        User currentUser = users.findFirstByName(userName);
+
+        // get other user
+        User otherUser = users.findFirstByName(attendee);
+
+        // for each user, make sure they have no colliding events
+        // if not, save event to each user.
+
+        if (currentUser != null) {
+            Event event = new Event(description, LocalDateTime.parse(startTime), LocalDateTime.parse(endTime), Stream.of(users.findFirstByName(userName)).collect(Collectors.toList()));
+
+            if (!event.collidesWithEvents(currentUser)) {
+                if (otherUser != null) {
+                    if (!event.collidesWithEvents(otherUser)) {
+                        events.save(event);
+                        otherUser.getEvents().add(event);
+                        currentUser.getEvents().add(event);
+                        users.save(currentUser);
+                        users.save(otherUser);
+                    }
+                } else {
+                    if (!event.collidesWithEvents(currentUser)){
+                        events.save(event);
+                        currentUser.getEvents().add(event);
+                        users.save(currentUser);
+                    }
+                }
+            }
         }
+
         return "redirect:/";
     }
 
