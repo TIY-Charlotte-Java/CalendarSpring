@@ -96,11 +96,6 @@ public class CalendarSpringController {
                 (newEvent.startTime.isBefore(existingEvent.endTime) && newEvent.endTime.isAfter(existingEvent.endTime))) {
             return false;
         } else
-
-        {
             return true;
-
-
-        }
     }
 }
