@@ -1,29 +1,51 @@
 <!doctype html>
-
 <html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
 <body>
-{{^user}}
-<form action="/login" method="post">
-    <input type="text" placeholder="Enter your name" name="name"/>
-    <button type="submit">Login</button>
-</form>
-{{/user}}
+        <header>
+            <h1>Welcome to DoAllTheThings!</h1>
+            <h2>A place for you to organize all that fun stuff you have to do</h2>
+        </header>
+    <main>
+        {{^user}}
+        <form action="/login" method="post">
+            <input type="text" placeholder="Enter your name" name="name"/>
+            <button type="submit">Login</button>
+        </form>
+        {{/user}}
 
-{{#user}}
-Welcome, {{name}}!<br />
-<form action="/logout" method="post">
-    <button type="submit">Logout</button>
-</form>
+        {{#user}}
+        <h3>Welcome, {{name}}!</h3>
 
-<form action="/create-event" method="post">
-    <input type="text" placeholder="Description" name="description" size="50" />
-    <input type="datetime-local" name="dateTime" value="{{now}}" />
-    <button type="submit">Add Event</button>
-</form>
-{{/user}}
+        <form action="/create-event" method="post">
+            <input type="text" placeholder="Description" name="description" size="50" />
+            <input type="datetime-local" name="startDateTime" value="{{now}}" />
+            <input type="datetime-local" name="endDateTime" value="{{now}}" />
+            <button type="submit">Add Event</button>
+        </form>
 
-{{#events}}
-{{description}} {{dateTime}}<br />
-{{/events}}
+        <table border="1" cellpadding="3">
+            <tr>
+                <th>Event</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+            </tr>
+            <tbody>
+            {{#events}}
+            <tr>
+                <td>{{description}}</td>
+                <td>{{startDateTime}}</td>
+                <td>{{endDateTime}}</td>
+            </tr>
+            {{/events}}
+            </tbody>
+        {{/user}}
+        </table>
+        <form action="/logout" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </main>
 </body>
 </html>

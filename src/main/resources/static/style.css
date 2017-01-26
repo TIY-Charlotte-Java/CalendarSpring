@@ -1,0 +1,47 @@
+body {
+    background-color: #E9F3F3;
+}
+
+h1 {
+    background-color: #D3F9EB;
+    color: #636565;
+    font-family: verdana;
+    margin:0;
+    text-align: center;
+}
+
+h2 {
+    background-color: #D3F9EB;
+    color: #8E9191;
+    font-family: verdana;
+    margin: 0;
+    text-align: center;
+}
+
+h3{
+    padding-top: 20px;
+    margin:0;
+    font-style: italic;
+}
+
+main {
+    color: #8E9191;
+    font-family: verdana;
+}
+
+form {
+    padding-top: 30px;
+    padding-bottom: 40px;
+}
+
+input {
+    padding: 5px;
+}
+
+table {
+    width: 60%;
+    background-color:
+}
+
+
+
