@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CalendarSpringController {
@@ -28,12 +29,11 @@ public class CalendarSpringController {
     public String home(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
         List<Event> eventEntities = new ArrayList<>();
-
         if (userName != null) {
             User user = users.findFirstByName(userName);
 
             if (user != null) {
-                eventEntities = events.findAllByUserOrderByDateTimeDesc(user);
+                eventEntities = events.findAllByUserOrderByStartDateTimeDesc(user);
             }
 
             model.addAttribute("user", user);
@@ -45,11 +45,28 @@ public class CalendarSpringController {
     }
 
     @RequestMapping(path = "/create-event", method = RequestMethod.POST)
-    public String createEvent(HttpSession session, String description, String dateTime) {
+    public String createEvent(HttpSession session, String description, String startDateTime, String endDateTime) throws Exception {
         String userName = (String) session.getAttribute("userName");
         if (userName != null) {
-            Event event = new Event(description, LocalDateTime.parse(dateTime), users.findFirstByName(userName));
-            events.save(event);
+            Event newEvent = new Event(
+                    description,
+                    LocalDateTime.parse(startDateTime),
+                    LocalDateTime.parse(endDateTime),
+                    users.findFirstByName(userName));
+            if (LocalDateTime.parse(startDateTime).isBefore(LocalDateTime.parse(endDateTime))) {
+               List<Event> collidingEvents = events.findAllByUserOrderByStartDateTimeDesc(users.findFirstByName(userName)).stream()
+                        .filter(e -> checkDateAndTime(newEvent, e) == false)
+                        .collect(Collectors.toList());
+               if (collidingEvents.size() == 0) {
+                   events.save(newEvent);
+               } else {
+                        throw new Exception("Um, do you have a Time Turner? No? Then you can't be in two places at once.");
+                             //   "Conflicting appointment: \n" + collidingEvents);
+                    }
+
+            } else {
+                throw new Exception("End time of event must be AFTER the start time, dummy.");
+            }
         }
         return "redirect:/";
     }
@@ -69,5 +86,16 @@ public class CalendarSpringController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    public static boolean checkDateAndTime(Event newEvent, Event existingEvent) {
+        if ((newEvent.startDateTime.isAfter(existingEvent.startDateTime) && newEvent.endDateTime.isBefore(existingEvent.endDateTime)) ||
+            (newEvent.startDateTime.isBefore(existingEvent.startDateTime) && newEvent.endDateTime.isAfter(existingEvent.endDateTime)) ||
+            (newEvent.startDateTime.isBefore(existingEvent.startDateTime) && newEvent.endDateTime.isAfter(existingEvent.startDateTime))||
+            (newEvent.startDateTime.isBefore(existingEvent.endDateTime) && newEvent.endDateTime.isAfter(existingEvent.endDateTime))){
+            return false;
+        } else {
+            return true;
+        }
     }
 }
