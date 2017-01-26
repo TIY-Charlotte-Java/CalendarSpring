@@ -92,7 +92,7 @@ public class CalendarSpringController {
     public static boolean check(Event newEvent, Event existingEvent) {
         if ((newEvent.startTime.isAfter(existingEvent.startTime) && newEvent.endTime.isBefore(existingEvent.endTime)) ||
                 (newEvent.startTime.isBefore(existingEvent.startTime) && newEvent.endTime.isAfter(existingEvent.endTime)) ||
-                (newEvent.startTime.isBefore(existingEvent.startTime) && newEvent.endTime.isAfter(existingEvent.startTime)) ||
+                (newEvent.startTime.isBefore(existingEvent.startTime) && newEvent.endTime.isBefore(existingEvent.endTime)) ||
                 (newEvent.startTime.isBefore(existingEvent.endTime) && newEvent.endTime.isAfter(existingEvent.endTime))) {
             return false;
         } else
