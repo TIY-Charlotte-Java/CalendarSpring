@@ -34,7 +34,7 @@ public class CalendarSpringController {
             User user = users.findFirstByName(userName);
 
             if (user != null) {
-                eventEntities = events.findAllByUserOrderByDateTimeDesc(user);
+                eventEntities = events.findAllByUserOrderByStartTimeDesc(user);
             }
 
             model.addAttribute("user", user);
@@ -57,7 +57,7 @@ public class CalendarSpringController {
                     users.findFirstByName(userName));
 
             if (LocalDateTime.parse(endTime).isAfter(LocalDateTime.parse(startTime))) {
-                List<Event> checkEvent = events.findAllByUserOrderByDateTimeDesc(users.findFirstByName(userName))
+                List<Event> checkEvent = events.findAllByUserOrderByStartTimeDesc(users.findFirstByName(userName))
                                 .stream().filter(e -> !checkCalender(event, e)).collect(Collectors.toList());
 
                 if (checkEvent.size() == 0) {
@@ -96,6 +96,3 @@ public class CalendarSpringController {
         }
     }
 }
-//                ((newEvent.startTime.isAfter(savedEvent.startTime) && newEvent.endTime.isBefore(savedEvent.endTime)) &&
-//                (newEvent.startTime.isBefore(savedEvent.startTime) && newEvent.endTime.isAfter(savedEvent.endTime)) &&
-//                (newEvent.startTime.isBefore(savedEvent.endTime) && newEvent.endTime.isAfter(savedEvent.endTime)))

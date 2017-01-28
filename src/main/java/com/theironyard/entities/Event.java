@@ -8,15 +8,15 @@ import java.time.LocalDateTime;
 public class Event {
     @Id
     @GeneratedValue
-    public int id;
+    int id;
 
     @Column(nullable = false)
-    public String description;
+    String description;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     public LocalDateTime startTime;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     public LocalDateTime endTime;
 
     @ManyToOne
