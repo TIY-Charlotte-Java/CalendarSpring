@@ -7,10 +7,10 @@ import javax.persistence.*;
 public class User {
     @Id
     @GeneratedValue
-    int id;
+    public int id;
 
     @Column(nullable = false, unique = true)
-    String name;
+    public String name;
 
     public User() {
     }

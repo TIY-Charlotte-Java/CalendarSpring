@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CalendarSpringController {
@@ -37,7 +38,7 @@ public class CalendarSpringController {
             }
 
             model.addAttribute("user", user);
-            model.addAttribute("now", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            model.addAttribute("now", LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         }
 
         model.addAttribute("events", eventEntities);
@@ -45,11 +46,26 @@ public class CalendarSpringController {
     }
 
     @RequestMapping(path = "/create-event", method = RequestMethod.POST)
-    public String createEvent(HttpSession session, String description, String dateTime) {
+    public String createEvent(HttpSession session, String description, String startTime, String endTime) throws Exception{
         String userName = (String) session.getAttribute("userName");
         if (userName != null) {
-            Event event = new Event(description, LocalDateTime.parse(dateTime), users.findFirstByName(userName));
-            events.save(event);
+
+            Event event = new Event(
+                    description,
+                    LocalDateTime.parse(startTime),
+                    LocalDateTime.parse(endTime),
+                    users.findFirstByName(userName));
+
+            if (LocalDateTime.parse(endTime).isAfter(LocalDateTime.parse(startTime))) {
+                List<Event> checkEvent = events.findAllByUserOrderByDateTimeDesc(users.findFirstByName(userName))
+                                .stream().filter(e -> !checkCalender(event, e)).collect(Collectors.toList());
+
+                if (checkEvent.size() == 0) {
+                    events.save(event);
+                } else {
+                    throw new Exception("Scheduling Conflict.");
+                }
+            }
         }
         return "redirect:/";
     }
@@ -70,4 +86,16 @@ public class CalendarSpringController {
         session.invalidate();
         return "redirect:/";
     }
+    //make sure the new event is not within the time frame of an event already saved to the calendar
+    private static boolean checkCalender(Event newEvent, Event savedEvent) {
+        if ((newEvent.startTime.isBefore(savedEvent.startTime) && newEvent.endTime.isBefore(savedEvent.startTime)) ||
+                newEvent.startTime.isAfter(savedEvent.endTime)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
+//                ((newEvent.startTime.isAfter(savedEvent.startTime) && newEvent.endTime.isBefore(savedEvent.endTime)) &&
+//                (newEvent.startTime.isBefore(savedEvent.startTime) && newEvent.endTime.isAfter(savedEvent.endTime)) &&
+//                (newEvent.startTime.isBefore(savedEvent.endTime) && newEvent.endTime.isAfter(savedEvent.endTime)))
