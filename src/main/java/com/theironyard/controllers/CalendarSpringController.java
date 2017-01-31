@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CalendarSpringController {
@@ -33,7 +34,7 @@ public class CalendarSpringController {
             User user = users.findFirstByName(userName);
 
             if (user != null) {
-                eventEntities = events.findAllByUserOrderByDateTimeDesc(user);
+                eventEntities = events.findAllByUserOrderByStartDateTimeDesc(user);
             }
 
             model.addAttribute("user", user);
@@ -45,11 +46,31 @@ public class CalendarSpringController {
     }
 
     @RequestMapping(path = "/create-event", method = RequestMethod.POST)
-    public String createEvent(HttpSession session, String description, String dateTime) {
+    public String createEvent(HttpSession session, String description, String startDateTime, String endDateTime) throws Exception {
         String userName = (String) session.getAttribute("userName");
         if (userName != null) {
-            Event event = new Event(description, LocalDateTime.parse(dateTime), users.findFirstByName(userName));
-            events.save(event);
+            Event event = new Event();
+                    event.setDescription(description);
+                    event.setStartDateTime(LocalDateTime.parse(startDateTime));
+                    event.setEndDateTime(LocalDateTime.parse(endDateTime));
+                    event.setUser(users.findFirstByName(userName));
+
+            List<Event> notBusy = events.findAllByUser(event.getUser()).stream().
+                    filter(e -> (
+                            (event.getStartDateTime().isAfter(e.getStartDateTime()) && event.getEndDateTime().isBefore(e.getEndDateTime()))
+                            ||
+                            (event.getStartDateTime().isBefore(e.getStartDateTime()) && event.getEndDateTime().isAfter(e.getEndDateTime()))
+                            ||
+                            (event.getStartDateTime().isBefore(e.getStartDateTime()) && event.getEndDateTime().isAfter(e.getStartDateTime()))
+                            ||
+                            (event.getStartDateTime().isBefore(e.getEndDateTime()) && event.getEndDateTime().isAfter(e.getEndDateTime()))
+                            )).collect(Collectors.toList());
+
+            if (notBusy.size() == 0) {
+                events.save(event);
+            }else {
+                throw new Exception("Dude, your busy!" + notBusy.toString());
+            }
         }
         return "redirect:/";
     }

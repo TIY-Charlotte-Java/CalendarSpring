@@ -1,7 +1,11 @@
-<!doctype html>
-
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Calendar</title>
+    <link rel="stylesheet" type="text/css" href="formatting.css">
+</head>
 <body>
+<h1>Calendar</h1>
 {{^user}}
 <form action="/login" method="post">
     <input type="text" placeholder="Enter your name" name="name"/>
@@ -10,20 +14,33 @@
 {{/user}}
 
 {{#user}}
-Welcome, {{name}}!<br />
+<h2>Welcome, {{name}}!</h2><br />
 <form action="/logout" method="post">
     <button type="submit">Logout</button>
 </form>
 
 <form action="/create-event" method="post">
     <input type="text" placeholder="Description" name="description" size="50" />
-    <input type="datetime-local" name="dateTime" value="{{now}}" />
+    <input type="datetime-local" name="startDateTime" value="{{now}}" />
+    <input type="datetime-local" name="endDateTime" value="{{now}}" />
     <button type="submit">Add Event</button>
 </form>
 {{/user}}
 
-{{#events}}
-{{description}} {{dateTime}}<br />
-{{/events}}
+<table class = center cellpadding = "5" cellspacing = "5">
+
+    <tr>
+        <th>Description</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+    </tr>
+    {{#events}}
+    <tr>
+        <td>{{description}}</td>
+        <td>{{startDateTime}}</td>
+        <td>{{endDateTime}}</td>
+    </tr>
+    {{/events}}
+</table>
 </body>
 </html>
