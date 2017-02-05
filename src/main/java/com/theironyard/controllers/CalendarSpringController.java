@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class CalendarSpringController {
@@ -27,29 +28,44 @@ public class CalendarSpringController {
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home(Model model, HttpSession session) {
         String userName = (String) session.getAttribute("userName");
-        List<Event> eventEntities = new ArrayList<>();
-
+        List<Event> actualEvents = new ArrayList<>();
         if (userName != null) {
             User user = users.findFirstByName(userName);
 
             if (user != null) {
-                eventEntities = events.findAllByUserOrderByDateTimeDesc(user);
+                actualEvents = events.findAllByUserOrderByDateTimeDesc(user);
             }
 
             model.addAttribute("user", user);
             model.addAttribute("now", LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         }
 
-        model.addAttribute("events", eventEntities);
+        model.addAttribute("events", actualEvents);
         return "home";
     }
 
     @RequestMapping(path = "/create-event", method = RequestMethod.POST)
-    public String createEvent(HttpSession session, String description, String dateTime) {
+    public String createEvent(HttpSession session, String description, String startDateTime, String endDateTime) throws Exception {
         String userName = (String) session.getAttribute("userName");
         if (userName != null) {
-            Event event = new Event(description, LocalDateTime.parse(dateTime), users.findFirstByName(userName));
-            events.save(event);
+            Event newEvent = new Event(
+                    description,
+                    LocalDateTime.parse(startDateTime),
+                    LocalDateTime.parse(endDateTime),
+                    users.findFirstByName(userName));
+            if (LocalDateTime.parse(startDateTime).isBefore(LocalDateTime.parse(endDateTime))) {
+                List<Event> collidingEvents = events.findAllByUserOrderByDateTimeDesc(users.findFirstByName(userName)).stream()
+                        .filter(e -> checkDateAndTime(newEvent, e) == false)
+                        .collect(Collectors.toList());
+                if (collidingEvents.size() == 0) {
+                    events.save(newEvent);
+                } else {
+                    throw new Exception("Two places at once?");
+                }
+
+            } else {
+                throw new Exception("The End is in the Beginning...");
+            }
         }
         return "redirect:/";
     }
@@ -69,5 +85,16 @@ public class CalendarSpringController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    public static boolean checkDateAndTime(Event newEvent, Event existingEvent) {
+        if ((newEvent.startDateTime.isAfter(existingEvent.startDateTime) && newEvent.endDateTime.isBefore(existingEvent.endDateTime)) ||
+                (newEvent.startDateTime.isBefore(existingEvent.startDateTime) && newEvent.endDateTime.isAfter(existingEvent.endDateTime)) ||
+                (newEvent.startDateTime.isBefore(existingEvent.startDateTime) && newEvent.endDateTime.isAfter(existingEvent.startDateTime))||
+                (newEvent.startDateTime.isBefore(existingEvent.endDateTime) && newEvent.endDateTime.isAfter(existingEvent.endDateTime))){
+            return false;
+        } else {
+            return true;
+        }
     }
 }
