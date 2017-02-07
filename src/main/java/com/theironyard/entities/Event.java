@@ -1,7 +1,6 @@
 package com.theironyard.entities;
 
 import javax.persistence.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,6 +27,9 @@ public class Event {
     public Event() {
     }
 
+
+
+
     public Event(String description, LocalDateTime startDateTime, LocalDateTime endDateTime, User user) {
         this.description = description;
         this.startDateTime = startDateTime;
@@ -37,6 +39,14 @@ public class Event {
 
     public int getId() {
         return id;
+    }
+
+    public Event(int id, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, User user) {
+        this.id = id;
+        this.description = description;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.user = user;
     }
 
     public void setId(int id) {
